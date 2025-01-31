@@ -11,10 +11,10 @@ let circle = {
 }
 
 let ball = {
-  x: 300,
-  y: 100,
+  x: canvas.width / 2,
+  y: canvas.height / 2 - 100,
   vx: 4,
-  vy: 3,
+  vy: 4,
   radius: 20,
   elasticity: 1.001,
   gravity: 0.1,
