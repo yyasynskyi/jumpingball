@@ -1,32 +1,96 @@
-//TIP With Search Everywhere, you can find any action, file, or symbol in your project. Press <shortcut actionId="Shift"/> <shortcut actionId="Shift"/>, type in <b>terminal</b>, and press <shortcut actionId="EditorEnter"/>. Then run <shortcut raw="npm run dev"/> in the terminal and click the link in its output to open the app in the browser.
-export function setupCounter(element) {
-  //TIP Try <shortcut actionId="GotoDeclaration"/> on <shortcut raw="counter"/> to see its usages. You can also use this shortcut to jump to a declaration – try it on <shortcut raw="counter"/> on line 13.
-  let counter = 0;
+const canvas = document.querySelector('.canvas');
+const ctx = canvas.getContext('2d');
 
-  const adjustCounterValue = value => {
-    if (value >= 100) return value - 100;
-    if (value <= -100) return value + 100;
-    return value;
-  };
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight - 150;
 
-  const setCounter = value => {
-    counter = adjustCounterValue(value);
-    //TIP WebStorm has lots of inspections to help you catch issues in your project. It also has quick fixes to help you resolve them. Press <shortcut actionId="ShowIntentionActions"/> on <shortcut raw="text"/> and choose <b>Inline variable</b> to clean up the redundant code.
-    const text = `${counter}`;
-    element.innerHTML = text;
-  };
-
-  document.getElementById('increaseByOne').addEventListener('click', () => setCounter(counter + 1));
-  document.getElementById('decreaseByOne').addEventListener('click', () => setCounter(counter - 1));
-  document.getElementById('increaseByTwo').addEventListener('click', () => setCounter(counter + 2));
-  //TIP In the app running in the browser, you’ll find that clicking <b>-2</b> doesn't work. To fix that, rewrite it using the code from lines 19 - 21 as examples of the logic.
-  document.getElementById('decreaseByTwo')
-
-  //TIP Let’s see how to review and commit your changes. Press <shortcut actionId="GotoAction"/> and look for <b>commit</b>. Try checking the diff for a file – double-click main.js to do that.
-  setCounter(0);
+let circle = {
+  x: canvas.width / 2,
+  y: canvas.height / 2 - 100,
+  radius: 300,
 }
 
-//TIP To find text strings in your project, you can use the <shortcut actionId="FindInPath"/> shortcut. Press it and type in <b>counter</b> – you’ll get all matches in one place.
-setupCounter(document.getElementById('counter-value'));
+let ball = {
+  x: 300,
+  y: 100,
+  vx: 4,
+  vy: 3,
+  radius: 20,
+  elasticity: 1.001,
+  gravity: 0.1,
+  color: "white",
+  count: 0
+}
 
-//TIP There's much more in WebStorm to help you be more productive. Press <shortcut actionId="Shift"/> <shortcut actionId="Shift"/> and search for <b>Learn WebStorm</b> to open our learning hub with more things for you to try.
+const counterDiv = document.querySelector('.counter');
+
+function draw () {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.beginPath();
+  ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI);
+  ctx.fillStyle = ball.color;
+  ctx.fill();
+
+  update();
+
+
+  requestAnimationFrame(draw);
+}
+
+function update () {
+  ball.vy += ball.gravity;
+
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  let dx = ball.x - circle.x;
+  let dy = ball.y - circle.y;
+  let distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance + ball.radius >= circle.radius) {
+    let normalX = dx / distance;
+    let normalY = dy / distance;
+
+    ball.color = getRandomColorWord();
+    ball.count++
+    // ball.radius++
+
+    counterDiv.innerHTML = ball.count;
+
+    let dotProduct = ball.vx * normalX + ball.vy * normalY;
+
+
+    ball.vx -= 2 * dotProduct * normalX * ball.elasticity;
+    ball.vy -= 2 * dotProduct * normalY * ball.elasticity;
+    // ball.vx -= 2 * dotProduct * normalX;
+    // ball.vy -= 2 * dotProduct * normalY;
+
+    // console.log(ball.vx);
+    console.log(ball.vy);
+
+    let overlap = (distance + ball.radius) - circle.radius;
+
+    ball.x -= normalX * overlap;
+    ball.y -= normalY * overlap;
+
+  }
+}
+
+
+function getRandomColorWord() {
+  const colors = [
+    'red', 'green', 'blue', 'yellow', 'purple', 'orange', 'pink', 'brown',
+    'cyan', 'magenta', 'lime', 'indigo', 'violet', 'teal', 'gold'
+  ];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+
+draw();
