@@ -16,10 +16,11 @@ let ball = {
   vx: 4,
   vy: 4,
   radius: 20,
-  elasticity: 1.001,
+  elasticity: 1.0004,
   gravity: 0.1,
   color: "white",
-  count: 0
+  count: 0,
+  minSpeed: 0.8
 }
 
 const counterDiv = document.querySelector('.counter');
@@ -47,12 +48,19 @@ function draw () {
 function update () {
   ball.vy += ball.gravity;
 
+  // Проверяем, чтобы скорость мяча не упала ниже минимальной
+  // if (Math.abs(ball.vx) < ball.minSpeed) ball.vx = ball.minSpeed * (ball.vx > 0 ? 1 : -1);
+  if (Math.abs(ball.vy) < ball.minSpeed) ball.vy = ball.minSpeed * (ball.vy > 0 ? 1 : -1);
+
   ball.x += ball.vx;
   ball.y += ball.vy;
+
+  ball.elasticity = 0.9 + Math.random() * 0.2;
 
   let dx = ball.x - circle.x;
   let dy = ball.y - circle.y;
   let distance = Math.sqrt(dx * dx + dy * dy);
+
 
   if (distance + ball.radius >= circle.radius) {
     let normalX = dx / distance;
@@ -60,17 +68,14 @@ function update () {
 
     ball.color = getRandomColorWord();
     ball.count++
-    // ball.radius++
 
     counterDiv.innerHTML = ball.count;
 
     let dotProduct = ball.vx * normalX + ball.vy * normalY;
 
-
     ball.vx -= 2 * dotProduct * normalX * ball.elasticity;
     ball.vy -= 2 * dotProduct * normalY * ball.elasticity;
-    // ball.vx -= 2 * dotProduct * normalX;
-    // ball.vy -= 2 * dotProduct * normalY;
+
 
     // console.log(ball.vx);
     console.log(ball.vy);
